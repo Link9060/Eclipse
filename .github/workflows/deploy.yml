@@ -31,6 +31,8 @@ jobs:
           node-version: '22'
       - name: Generate missing traveler assets
         run: node scripts/build-traveler.mjs
+      - name: Verify character asset coverage
+        run: node scripts/verify-traveler.mjs
       - name: Prepare website
         run: |
           test -s index.html
