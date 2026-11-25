@@ -9,7 +9,7 @@
 
 @media(min-width:801px){body{height:100dvh;overflow:hidden}header{height:68px}main{height:calc(100dvh - 68px);min-height:0;grid-template-columns:minmax(0,1fr) minmax(320px,410px)}.stage{min-height:0}.panel{overflow-y:auto;min-height:0}}
 .panel{gap:16px}.section summary{cursor:pointer;font:20px Georgia,serif;padding:3px 0 10px}.field{margin:10px 0 15px}.palette-row{display:flex;align-items:center;justify-content:space-between;text-transform:capitalize;margin:10px 0}.palette-row input{width:54px;height:30px;border:1px solid var(--line);background:none}.stage{background:radial-gradient(ellipse at 50% 40%,#3b383c,#18191d 65%,#0b0d10 100%)}#loading{width:min(420px,76%);max-width:none;padding:28px;border:1px solid #ffffff20;background:#15161acc;z-index:1;backdrop-filter:blur(8px);line-height:1.6}#loading h2{font:26px Georgia,serif;color:#e8e1d9;margin:9px 0}#loading p{margin:10px 0}#missing{display:flex;flex-wrap:wrap;justify-content:center;gap:5px;list-style:none;padding:0;font-size:11px}#missing li{border:1px solid var(--line);padding:2px 7px}button:disabled{opacity:.35;cursor:not-allowed}.selection{color:var(--muted);font-size:12px;margin-top:10px}.confirmed{z-index:5}
-</style>
+.creator-heading{font:24px Georgia,serif;font-weight:400;margin:0 0 15px}.choices.hair .choice{min-height:46px}.panel #options .section{padding-bottom:20px}.panel .actions{gap:10px}</style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.1/examples/jsm/"}}</script>
 </head>
 <body>
@@ -22,11 +22,9 @@
 <div class="confirmed" id="confirmed" role="dialog" aria-modal="true" aria-labelledby="confirmed-title"><article><div class="eyebrow">Prologue / Ready</div><h2 id="confirmed-title">The journey awaits.</h2><p id="summary"></p><p>Your traveler configuration is saved. The finished artwork and playable prologue are still in development.</p><button class="primary" id="back">Return to creator</button></article></div>
 </section>
 <aside class="panel">
-<div><div class="eyebrow">01 / Identity</div><h2>Create your Concordant</h2><p>Before light and shadow divided the world, you were simply a traveler.</p></div>
-<div class="section"><label class="label" for="name">Traveler name <span>Optional</span></label><input id="name" class="name" maxlength="32" autocomplete="off" placeholder="Unnamed traveler"></div>
+<div><div class="eyebrow">01 / Origin</div><h2>Create your Concordant</h2><p>Before light and shadow divided the world, you were simply a traveler.</p></div>
 <div id="options"></div>
-<details class="section"><summary>Palette</summary><div id="palette"></div></details>
-<div class="section"><div class="kit"><div class="kit-icon">◇</div><div><strong>Concordant garments</strong><small>Stage I · Before the fracture</small></div></div><p>Hood selection is a preview. Gameplay will control the hood automatically.</p></div>
+<div class="section"><div class="kit"><div class="kit-icon">◇</div><div><strong>Concordant garments</strong><small>Stage I · Before the fracture</small></div></div><p>Fixed starting equipment. The hood is lowered here to reveal your hairstyle; gameplay controls it automatically.</p></div>
 <div class="actions"><button class="secondary" id="randomize">Randomize appearance</button><button class="primary" id="begin">Confirm traveler</button><button class="secondary" id="reset">Reset appearance</button><div id="status" role="status" aria-live="polite"></div></div>
 </aside>
 </main>
