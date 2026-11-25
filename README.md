@@ -2,11 +2,11 @@
 
 Browser-based stylized 3D adventure with 2D gameplay and an angled camera.
 
-## Character creator v0.2 — GLB foundation
+## Character creator v0.6 — focused selection
 
 Run `python3 -m http.server 8000` and open http://localhost:8000, or visit https://link9060.github.io/Eclipse/. GitHub Actions deploys pushes to main when GitHub Pages uses the Actions source.
 
-The character creator supports body frame, height, build, facial silhouette, skin, markings, eye light, 12 hairstyles, hair color, hood, cloak pattern, mantle, tunic, belt, wraps, boots and four material colors. State is versioned and persisted under `eclipse.character.v2`; v1 choices migrate automatically. Confirmation emits `eclipse:character-confirmed` with the Stage I kit and gameplay hood down.
+The player chooses only gender and hairstyle (12 choices, including shaved). Starting skin, hair color, facial markings, proportions and Stage I traveler garments are fixed. The broader asset schema remains internal for world-controlled progression and tests. The creator normalizes old saves to the fixed defaults while preserving valid gender and hairstyle. Confirmation emits `eclipse:character-confirmed` with the Stage I kit and hood down.
 
 ## Art status
 
@@ -25,7 +25,7 @@ The creator is a rest-pose art-blockout preview with GPU secondary motion. Share
 
 ## Lightweight secondary motion
 
-Open **Wind & motion preview** in the creator to control wind speed, direction, motion strength and simulated idle/walk/run speeds. These are preview controls, not body locomotion.
+Wind and loose-garment motion run automatically in the creator, honoring reduced-motion preferences. Developer wind/movement preview controls are no longer exposed to players.
 
 `src/character/SecondaryMotion.js` applies bounded, damped wind response and GPU vertex deformation to hair tips, cloak, loose tunic panels and mantle. Matching depth shaders deform directional-light shadows. No per-vertex CPU physics, per-frame mesh uploads, cloth collision or full simulation is used. Reduced-motion preferences disable the effect by default; the shader skips deformation when disabled. Actual FPS costs and clipping still require browser testing.
 
