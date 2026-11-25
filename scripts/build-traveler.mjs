@@ -217,8 +217,8 @@ function mantle(m,b,style){
   function drape(u,t){
     const theta=PI+.20+u*(PI-.40);
     const shoulder=Math.sin(Math.min(1,t*5)*PI/2);
-    const rx=.102+(b.shoulder+.15-.102)*shoulder+.032*t;
-    const rz=.10+.12*shoulder+.035*t;
+    const rx=.102+(b.shoulder+.115-.102)*shoulder+.032*t;
+    const rz=.087+.10*shoulder+.035*t;
     const pleat=(.009+.027*t)*Math.sin(u*PI*10+.5*Math.sin(t*4));
     const hem=end+.10*Math.cos(u*PI*1.2)+.045*Math.sin(u*PI*5);
     return V((rx+pleat)*Math.cos(theta),1.46+(hem-1.46)*t-.045*shoulder*Math.abs(Math.cos(theta)),(rz+pleat)*Math.sin(theta)-.055*shoulder);
@@ -237,8 +237,9 @@ function mantle(m,b,style){
   // rather than two independent sheets crossing the torso and cloak.
   function shoulder(u,t){
     const angle=-PI/2+u*tau;
-    const rx=.085+(b.shoulder+.095-.085)*t;
-    const rz=.085+.122*t;
+    const spread=Math.sin(PI*.5*Math.pow(t,.66));
+    const rx=.085+(b.shoulder+.155-.085)*spread;
+    const rz=.085+.165*spread;
     const fold=.007*Math.sin(angle*5+t*4)*t;
     const y=1.46-.245*t+.043*Math.cos(angle)*t+.016*Math.sin(angle*2)*t;
     return V((rx+fold)*Math.cos(angle),y,(rz+fold)*Math.sin(angle));
