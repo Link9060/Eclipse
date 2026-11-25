@@ -6,7 +6,7 @@ Browser-based stylized 3D adventure with 2D gameplay and an angled orthographic 
 
 Open `index.html` in a modern WebGL-capable browser with internet access (Three.js is pinned to 0.160.1 on jsDelivr). For local development, run `python3 -m http.server 8000` in the repository and open http://localhost:8000. No build tooling required.
 
-For GitHub Pages: Settings → Pages → Deploy from a branch → `main` → `/ (root)` → Save.
+For GitHub Pages: Settings → Pages → Build and deployment → Source → GitHub Actions. The workflow in `.github/workflows/deploy.yml` publishes on pushes to `main`, or manually via Actions → Deploy Eclipse → Run workflow. The expected site URL is https://link9060.github.io/Eclipse/. The workflow stages `index.html` and any `assets`, `src`, or `public` directories; update the staging step if the site layout changes.
 
 ### Features
 
