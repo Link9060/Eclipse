@@ -28,6 +28,12 @@ export const defaults = Object.freeze({
   wrapDensity:'Standard',bootStyle:'Traveler',palette:palettes,
   kit:'concordant-traveler',garmentStage:1
 });
+// The player chooses only gender and hairstyle. The rest of the schema is
+// reserved for world-controlled wardrobe progression and internal asset testing.
+export const creatorOptions=Object.freeze({frame:options.frame,hair:options.hair});
+export function normalizeCreator(raw={}){
+  return normalize({frame:raw?.frame,hair:raw?.hair,hood:'Down'});
+}
 export const storageKey='eclipse.character.v2';
 export function normalize(raw={}){
   const out={...defaults,palette:{...palettes}};
