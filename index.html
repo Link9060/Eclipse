@@ -6,124 +6,36 @@
 <title>ECLIPSE — The Concordant</title>
 <style>
 :root{color-scheme:dark;--ink:#e8e8e4;--muted:#a1a4a8;--line:#ffffff20;--bg:#0b0d10}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px system-ui,sans-serif}button,input{font:inherit;color:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible{outline:2px solid white;outline-offset:3px}header{position:relative;z-index:2;display:flex;align-items:center;justify-content:space-between;padding:23px clamp(18px,4vw,60px);border-bottom:1px solid var(--line);background:#0b0d10e8}.brand{font:500 21px Georgia,serif;letter-spacing:.45em}.brand i{display:inline-block;width:19px;height:19px;border:1px solid #ccc;border-radius:50%;vertical-align:middle;margin-right:15px;box-shadow:inset 5px 0 #ddd}.chapter,.eyebrow{font-size:10px;text-transform:uppercase;letter-spacing:.23em;color:var(--muted)}main{display:grid;grid-template-columns:minmax(0,1fr) minmax(320px,410px);min-height:calc(100dvh - 68px)}.stage{position:relative;min-height:620px;overflow:hidden;background:radial-gradient(ellipse at 50% 43%,#262a30,#101217 55%,#090a0d 90%)}#viewport{position:absolute;inset:0;touch-action:none}canvas{display:block;width:100%;height:100%}.stage-title{position:absolute;top:35px;left:clamp(18px,4vw,60px);pointer-events:none}h1{font:400 clamp(32px,5vw,65px) Georgia,serif;letter-spacing:-.04em;margin:8px 0 0}.stage-footer{position:absolute;bottom:24px;left:24px;right:24px;display:flex;justify-content:space-between;align-items:end;pointer-events:none}.view-controls{pointer-events:auto;display:flex;gap:8px}.small,.choice{background:#15171b;border:1px solid var(--line);padding:10px 12px;border-radius:3px}.small:hover,.choice:hover{background:#272a30}.panel{background:#101216;border-left:1px solid var(--line);padding:30px 25px;display:flex;flex-direction:column;gap:22px}.panel h2{font:400 29px Georgia,serif;margin:7px 0}.panel p{color:var(--muted);line-height:1.6;margin:5px 0}.section{border-top:1px solid var(--line);padding-top:15px}.label{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;font-size:11px;letter-spacing:.13em;text-transform:uppercase}.label span{color:var(--muted);font-size:10px;letter-spacing:.06em}.choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.choice{text-align:left;min-height:38px;font-size:12px;color:#b5b7bc}.choice[aria-pressed=true]{background:#e0e0dc;color:#111;border-color:#e0e0dc}.hair{grid-template-columns:repeat(3,minmax(0,1fr))}.hair .choice{padding:9px 7px}.name{width:100%;background:#0b0d10;border:1px solid var(--line);padding:11px;border-radius:3px}.kit{display:flex;gap:12px;align-items:center}.kit-icon{width:48px;height:48px;border:1px solid var(--line);display:grid;place-items:center;font:28px Georgia,serif;color:#d5d5d0}.kit strong{font-weight:500}.kit small{display:block;color:var(--muted);margin-top:5px}.actions{display:grid;gap:8px;margin-top:auto}.primary{background:#e4e4de;color:#111;border:0;padding:15px;letter-spacing:.12em;font-size:12px;text-transform:uppercase;font-weight:600}.primary:hover{background:white}.secondary{background:transparent;border:1px solid var(--line);padding:10px;color:var(--muted)}#status{min-height:20px;color:#c8c8c2;font-size:12px}#loading{position:absolute;inset:50% auto auto 50%;transform:translate(-50%,-50%);color:var(--muted);text-align:center;max-width:70%}.confirmed{position:absolute;inset:0;display:none;place-items:center;background:#08090bd9;z-index:5;padding:24px}.confirmed.open{display:grid}.confirmed article{max-width:390px;border:1px solid var(--line);background:#14161b;padding:30px;text-align:center}.confirmed h2{font:32px Georgia,serif}.confirmed p{line-height:1.6;color:var(--muted)}@media(max-width:800px){header{padding:16px}.chapter{display:none}main{display:block}.stage{height:62dvh;min-height:420px}.stage-title{top:18px}.stage-footer{bottom:12px;left:12px;right:12px}.panel{border-left:0;border-top:1px solid var(--line);padding:22px}.stage-footer .eyebrow{max-width:120px}}
+
+@media(min-width:801px){body{height:100dvh;overflow:hidden}header{height:68px}main{height:calc(100dvh - 68px);min-height:0;grid-template-columns:minmax(0,1fr) minmax(320px,410px)}.stage{min-height:0}.panel{overflow-y:auto;min-height:0}}
+.panel{gap:16px}.section summary{cursor:pointer;font:20px Georgia,serif;padding:3px 0 10px}.field{margin:10px 0 15px}.palette-row{display:flex;align-items:center;justify-content:space-between;text-transform:capitalize;margin:10px 0}.palette-row input{width:54px;height:30px;border:1px solid var(--line);background:none}.stage{background:radial-gradient(ellipse at 50% 40%,#3b383c,#18191d 65%,#0b0d10 100%)}#loading{width:min(420px,76%);max-width:none;padding:28px;border:1px solid #ffffff20;background:#15161acc;z-index:1;backdrop-filter:blur(8px);line-height:1.6}#loading h2{font:26px Georgia,serif;color:#e8e1d9;margin:9px 0}#loading p{margin:10px 0}#missing{display:flex;flex-wrap:wrap;justify-content:center;gap:5px;list-style:none;padding:0;font-size:11px}#missing li{border:1px solid var(--line);padding:2px 7px}button:disabled{opacity:.35;cursor:not-allowed}.selection{color:var(--muted);font-size:12px;margin-top:10px}.confirmed{z-index:5}
 </style>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.1/examples/jsm/"}}</script>
 </head>
 <body>
 <header><div class="brand"><i></i>ECLIPSE</div><div class="chapter">Prologue / Character creation</div></header>
 <main>
 <section class="stage" aria-label="Character preview">
-<div id="viewport"></div><div id="loading" role="status">Awakening the Concordant…</div>
+<div id="viewport"></div><div id="loading" role="status"><div class="eyebrow">Stage I / Asset pipeline</div><h2 id="asset-title">Preparing character creator</h2><p id="asset-message">Loading the modular renderer…</p><ul id="missing"></ul><div class="selection" id="selection"></div></div>
 <div class="stage-title"><div class="eyebrow">Before the fracture</div><h1>The Traveler</h1></div>
-<div class="stage-footer"><div class="eyebrow">Drag to rotate · Scroll to zoom</div><div class="view-controls"><button class="small" id="front" type="button">Front</button><button class="small" id="face" type="button">Face</button><button class="small" id="spin" type="button" aria-pressed="false">Rotate</button></div></div>
-<div class="confirmed" id="confirmed" role="dialog" aria-modal="true" aria-labelledby="confirmed-title"><article><div class="eyebrow">Prologue / Ready</div><h2 id="confirmed-title">The journey awaits.</h2><p id="summary"></p><p>Character creation is complete. The playable prologue will be connected in a later build.</p><button class="primary" id="back">Return to creator</button></article></div>
+<div class="stage-footer"><div class="eyebrow">Drag to rotate · Scroll to zoom</div><div class="view-controls"><button class="small" id="front" type="button" disabled>Front</button><button class="small" id="face" type="button" disabled>Face</button><button class="small" id="spin" type="button" disabled aria-pressed="false">Rotate</button></div></div>
+<div class="confirmed" id="confirmed" role="dialog" aria-modal="true" aria-labelledby="confirmed-title"><article><div class="eyebrow">Prologue / Ready</div><h2 id="confirmed-title">The journey awaits.</h2><p id="summary"></p><p>Your traveler configuration is saved. The finished artwork and playable prologue are still in development.</p><button class="primary" id="back">Return to creator</button></article></div>
 </section>
 <aside class="panel">
 <div><div class="eyebrow">01 / Identity</div><h2>Create your Concordant</h2><p>Before light and shadow divided the world, you were simply a traveler.</p></div>
 <div class="section"><label class="label" for="name">Traveler name <span>Optional</span></label><input id="name" class="name" maxlength="32" autocomplete="off" placeholder="Unnamed traveler"></div>
-<div class="section"><div class="label">Frame <span>Visual only</span></div><div class="choices" id="frame"></div></div>
-<div class="section"><div class="label">Hair <span>Ivory white</span></div><div class="choices hair" id="hair"></div></div>
-<div class="section"><div class="label">Face <span>Concordant</span></div><div class="choices" id="faceShape"></div></div>
-<div class="section"><div class="label">Markings <span>Faint silver</span></div><div class="choices" id="markings"></div></div>
-<div class="section"><div class="label">Traveler's kit <span>Stage I</span></div><div class="kit"><div class="kit-icon">◇</div><div><strong>Concordant garments</strong><small>Hooded mantle · tunic · wraps · boots</small></div></div><div class="choices" id="hood" style="margin-top:12px"></div><p>Hood preview only. The world will control it automatically during gameplay.</p></div>
+<div id="options"></div>
+<details class="section"><summary>Palette</summary><div id="palette"></div></details>
+<div class="section"><div class="kit"><div class="kit-icon">◇</div><div><strong>Concordant garments</strong><small>Stage I · Before the fracture</small></div></div><p>Hood selection is a preview. Gameplay will control the hood automatically.</p></div>
 <div class="actions"><button class="secondary" id="randomize">Randomize appearance</button><button class="primary" id="begin">Confirm traveler</button><button class="secondary" id="reset">Reset appearance</button><div id="status" role="status" aria-live="polite"></div></div>
 </aside>
 </main>
 <script type="module">
-const options={frame:['Male','Female'],hair:['Cropped','Sweep','Spiked','Side part','Braid','Bob','Long','Topknot','Shaved','Waves','Twin braids','Locs'],faceShape:['Angular','Soft','Narrow'],markings:['None','Cheeks','Brow','Temple'],hood:['Down','Up']};
-const defaults={version:1,name:'',frame:'Male',hair:'Sweep',faceShape:'Angular',markings:'Cheeks',hood:'Down',kit:'concordant-traveler',garmentStage:1};
-const key='eclipse.character.v1';
-function load(){try{const saved=JSON.parse(localStorage.getItem(key)||'null');if(!saved)return {...defaults};const out={...defaults};for(const field of Object.keys(options))if(options[field].includes(saved[field]))out[field]=saved[field];if(typeof saved.name==='string')out.name=saved.name.slice(0,32);return out}catch{return {...defaults}}}
-let state=load();
-let refreshPreview=()=>{};
-const $=id=>document.getElementById(id);
-function save(){try{localStorage.setItem(key,JSON.stringify(state));return true}catch{return false}}
-function drawControls(){for(const [field,values] of Object.entries(options)){const parent=$(field);parent.replaceChildren();for(const value of values){const b=document.createElement('button');b.type='button';b.className='choice';b.textContent=value;b.setAttribute('aria-pressed',String(state[field]===value));b.addEventListener('click',()=>{state[field]=value;drawControls();refreshPreview();save();});parent.append(b)}}$('name').value=state.name}
-$('name').addEventListener('input',e=>{state.name=e.target.value;save()});
-$('randomize').onclick=()=>{for(const field of ['frame','hair','faceShape','markings']){const values=options[field];state[field]=values[Math.floor(Math.random()*values.length)]}drawControls();refreshPreview();save()};
-$('reset').onclick=()=>{state={...defaults};drawControls();refreshPreview();save();$('status').textContent='Appearance reset.'};
-$('begin').onclick=()=>{const persisted=save();$('status').textContent=persisted?'Traveler saved on this device.':'Browser storage unavailable; character is session-only.';$('summary').textContent=(state.name.trim()||'Unnamed traveler')+' · '+state.frame+' · '+state.hair+' · Concordant garments';$('confirmed').classList.add('open');$('back').focus();window.dispatchEvent(new CustomEvent('eclipse:character-confirmed',{detail:{...state,hood:'Down'}}))};
-$('back').onclick=()=>{$('confirmed').classList.remove('open');$('begin').focus()};document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('confirmed').classList.contains('open'))$('back').click()});
-drawControls();
-async function init(){
-const T=await import('https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.module.js');
-const host=$('viewport'),scene=new T.Scene(),camera=new T.OrthographicCamera(-2,2,2,-2,.1,100),renderer=new T.WebGLRenderer({antialias:true,alpha:true});
-renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.outputColorSpace=T.SRGBColorSpace;renderer.shadowMap.enabled=true;renderer.shadowMap.type=T.PCFSoftShadowMap;host.append(renderer.domElement);
-scene.add(new T.HemisphereLight(0xe7eefc,0x29272c,2.0));
-const light=(c,p,x,y,z)=>{const l=new T.DirectionalLight(c,p);l.position.set(x,y,z);scene.add(l);return l};const keyLight=light(0xfff2db,3.2,4,7,5);keyLight.castShadow=true;keyLight.shadow.mapSize.set(1024,1024);keyLight.shadow.camera.left=-3;keyLight.shadow.camera.right=3;keyLight.shadow.camera.top=4;keyLight.shadow.camera.bottom=-3;light(0xbac8ed,2.8,-4,4,-5);
-const mat=(color,roughness=.8)=>new T.MeshStandardMaterial({color,roughness,flatShading:true});
-const skin=mat(0x15161a),hair=mat(0xf1f0eb,.65),cloth=mat(0x26282d),dark=mat(0x101115),ivory=mat(0xbebdb5),silver=mat(0x858a90),eye=mat(0xd4d9df),floorMat=mat(0x20232a);
-const floor=new T.Mesh(new T.CylinderGeometry(1.9,2.05,.12,64),floorMat);floor.position.y=-.065;floor.receiveShadow=true;scene.add(floor);
-const ring=new T.Mesh(new T.RingGeometry(1.62,1.635,64),new T.MeshBasicMaterial({color:0x757a84,side:T.DoubleSide}));ring.rotation.x=-Math.PI/2;ring.position.y=.003;scene.add(ring);
-const group=new T.Group();scene.add(group);
-function mesh(parent,geo,m,x,y,z){const o=new T.Mesh(geo,m);o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;parent.add(o);return o}
-function ell(parent,m,x,y,z,a,b,c,segments=10){const o=mesh(parent,new T.SphereGeometry(1,segments,7),m,x,y,z);o.scale.set(a,b,c);return o}
-function box(parent,m,x,y,z,a,b,c){return mesh(parent,new T.BoxGeometry(a,b,c),m,x,y,z)}
-function link(parent,m,a,b,r1,r2,n=7){const start=new T.Vector3(...a),end=new T.Vector3(...b),d=end.clone().sub(start),mid=start.clone().add(end).multiplyScalar(.5);const o=mesh(parent,new T.CylinderGeometry(r2,r1,d.length(),n),m,mid.x,mid.y,mid.z);o.quaternion.setFromUnitVectors(new T.Vector3(0,1,0),d.normalize());return o}
-function cone(parent,m,a,b,r,n=5){return link(parent,m,a,b,r,.004,n)}
-function robe(parent,m,y,top,bottom,h,depth){const o=mesh(parent,new T.CylinderGeometry(top,bottom,h,8),m,0,y,0);o.scale.z=depth;return o}
-function line(parent,m,a,b,r=.018){return link(parent,m,a,b,r,r,5)}
-function build(){
-for(const child of [...group.children]){child.traverse(o=>{if(o.geometry)o.geometry.dispose()});group.remove(child)}
-const f=state.frame==='Female',shoulder=f?.39:.44,hip=f?.30:.275,waist=f?.235:.255;
-const torso=robe(group,cloth,2.05,shoulder,waist,.57,.58);
-robe(group,dark,1.69,waist,hip,.23,.76);
-robe(group,cloth,1.39,hip,.41,.59,.73);
-robe(group,ivory,1.69,hip+.025,hip+.025,.075,.80);
-for(const s of [-1,1]){
-const x=s*.19;
-link(group,dark,[x,1.39,0],[x*1.06,.69,0],.145,.112);link(group,cloth,[x*1.06,.72,0],[x*1.1,.25,0],.119,.105);
-ell(group,dark,x*1.1,.15,.075,.13,.15,.23);
-for(let i=0;i<3;i++)robeWrap(x*1.1,.35+i*.09);
-const sx=s*shoulder;ell(group,cloth,sx,2.26,0,.16,.16,.17);
-link(group,cloth,[sx,2.25,0],[s*(shoulder+.14),1.87,0],.15,.115);
-link(group,ivory,[s*(shoulder+.14),1.87,0],[s*(shoulder+.19),1.55,.02],.107,.082);
-for(let i=0;i<3;i++)line(group,dark,[s*(shoulder+.22),1.59+i*.07,.07],[s*(shoulder+.10),1.62+i*.07,.10],.012);
-ell(group,skin,s*(shoulder+.19),1.44,.025,.09,.15,.085);
-line(group,ivory,[s*.065,1.65,.24],[s*.28,1.11,.26],.024);
-}
-function robeWrap(x,y){const o=mesh(group,new T.CylinderGeometry(.118,.118,.043,8),ivory,x,y,0);o.scale.z=.94}
-for(const s of [-1,1]){line(group,ivory,[s*.08,2.38,.14],[s*.29,2.18,.21],.055);line(group,ivory,[s*.29,2.18,.21],[s*.10,1.94,.17],.044);line(group,silver,[s*.30,1.67,.01],[s*.34,1.14,.035],.017)}
-// A folded travel mantle, deliberately without any Eclipse shards or energized armor.
-ell(group,dark,0,2.30,-.19,.39,.18,.20);ell(group,cloth,0,2.04,-.22,.34,.48,.10);
-link(group,skin,[0,2.29,0],[0,2.52,0],.115,.12);
-const head=new T.Group();head.position.y=2.70;group.add(head);
-const shape=state.faceShape,hw=shape==='Narrow'?.205:shape==='Soft'?.25:.23,hh=shape==='Soft'?.265:.29;
-ell(head,skin,0,0,0,hw,hh,.215,shape==='Soft'?12:8);
-ell(head,skin,0,-.13,.035,hw*.78,.15,.176,8);
-for(const s of [-1,1]){ell(head,skin,s*hw,.005,0,.05,.085,.046,6);ell(head,eye,s*.087,.025,.195,.044,.015,.018,7);if(state.markings==='Cheeks')line(head,silver,[s*.055,-.055,.203],[s*.153,-.085,.164],.008);if(state.markings==='Temple')line(head,silver,[s*.17,.13,.13],[s*.195,-.025,.12],.009)}
-if(state.markings==='Brow'){line(head,silver,[-.08,.13,.183],[0,.09,.207],.009);line(head,silver,[0,.09,.207],[.08,.13,.183],.009)}
-if(state.hood==='Up'){
-ell(head,dark,0,.055,-.09,.31,.36,.26);
-for(const s of [-1,1]){link(head,cloth,[0,.36,-.005],[s*.26,.16,.065],.075,.077);link(head,cloth,[s*.26,.16,.065],[s*.21,-.20,.065],.075,.055);line(head,ivory,[0,.35,.07],[s*.24,.15,.13],.018);line(head,ivory,[s*.24,.15,.13],[s*.19,-.18,.12],.018)}
-}else{
-const h=state.hair;
-if(h!=='Shaved')ell(head,hair,0,.15,-.035,hw+.019,.164,.226);
-if(h==='Cropped'){for(let i=0;i<5;i++)cone(head,hair,[(i-2)*.07,.19,.08],[(i-2)*.07,.30,.10],.045)}
-if(h==='Sweep'||h==='Side part'){for(let i=0;i<5;i++){const x=-.17+i*.075;cone(head,hair,[x,.20,.10],[x+.095,.045+i*.022,.225],.073)}if(h==='Side part')ell(head,hair,-.19,.085,.025,.04,.13,.17)}
-if(h==='Spiked'){for(let i=0;i<7;i++){const x=(i-3)*.055;cone(head,hair,[x,.21,.02],[x*1.5,.39-Math.abs(x)*.24,-.035],.072)}}
-if(h==='Bob'||h==='Long'||h==='Braid'||h==='Twin braids'||h==='Locs'){
-for(const s of [-1,1]){ell(head,hair,s*.18,-.04,-.055,.078,.23,.17);if(h==='Long')ell(head,hair,s*.16,-.28,-.12,.105,.36,.105)}
-if(h==='Long')ell(head,hair,0,-.24,-.19,.19,.38,.1);
-if(h==='Braid'||h==='Twin braids'){const xs=h==='Braid'?[0]:[-.17,.17];for(const x of xs)for(let i=0;i<8;i++)ell(head,hair,x+Math.sin(i*2)*.022,-.06-i*.07,-.20,.064-i*.003,.065,.065)}
-if(h==='Locs')for(let j=0;j<8;j++){const a=j*Math.PI/7;link(head,hair,[Math.cos(a)*.19,.15,-Math.sin(a)*.20],[Math.cos(a)*.24,-.20-(j%3)*.05,-Math.sin(a)*.23],.039,.029,6)}
-}
-if(h==='Topknot'){ell(head,hair,0,.29,-.13,.13,.12,.13);ell(head,hair,0,.37,-.14,.10,.11,.10)}
-if(h==='Waves')for(let i=0;i<8;i++){const a=i*Math.PI/4;ell(head,hair,Math.cos(a)*.14,.20,Math.sin(a)*.13,.09,.11,.10)}
-}
-}
-refreshPreview=build;build();
-let yaw=.22,auto=false,zoom=1,targetY=1.57,desiredY=1.57,desiredZoom=1,drag=false,lastX=0;
-function resize(){const w=host.clientWidth,h=host.clientHeight;if(!w||!h)return;renderer.setSize(w,h,false);const aspect=w/h;const height=4.15;camera.left=-height*aspect/2;camera.right=height*aspect/2;camera.top=height/2;camera.bottom=-height/2;camera.updateProjectionMatrix()}
-new ResizeObserver(resize).observe(host);resize();
-host.addEventListener('pointerdown',e=>{drag=true;lastX=e.clientX;host.setPointerCapture(e.pointerId);auto=false;$('spin').setAttribute('aria-pressed','false')});
-host.addEventListener('pointermove',e=>{if(drag){yaw+=(e.clientX-lastX)*.012;lastX=e.clientX}});
-for(const evt of ['pointerup','pointercancel','lostpointercapture'])host.addEventListener(evt,()=>drag=false);
-host.addEventListener('wheel',e=>{e.preventDefault();desiredZoom=T.MathUtils.clamp(desiredZoom-e.deltaY*.001,0.8,2.6)},{passive:false});
-$('front').onclick=()=>{yaw=0;desiredZoom=1;desiredY=1.57;auto=false;$('spin').setAttribute('aria-pressed','false')};$('face').onclick=()=>{yaw=0;desiredZoom=2.6;desiredY=2.64;auto=false;$('spin').setAttribute('aria-pressed','false')};$('spin').onclick=()=>{auto=!auto;$('spin').setAttribute('aria-pressed',String(auto))};
-$('loading').hidden=true;const clock=new T.Clock();
-renderer.setAnimationLoop(()=>{const dt=Math.min(clock.getDelta(),.05);if(auto)yaw+=dt*.55;group.rotation.y=yaw;targetY+=(desiredY-targetY)*Math.min(dt*9,1);zoom+=(desiredZoom-zoom)*Math.min(dt*9,1);camera.position.set(0,targetY+1.25,7);camera.lookAt(0,targetY,0);camera.zoom=zoom;camera.updateProjectionMatrix();renderer.render(scene,camera)});
-}
-init().catch(error=>{console.error(error);$('loading').textContent='3D preview unavailable. Check WebGL support and network access. Customization and saving still work.'});
+import('./src/creator.js').catch(error=>{
+ console.error(error);
+ document.getElementById('asset-title').textContent='Creator could not start';
+ document.getElementById('asset-message').textContent='Check your connection and reload. The Three.js modules are loaded from a pinned CDN.';
+});
 </script>
 </body>
 </html>
