@@ -5,6 +5,7 @@ const $=id=>document.getElementById(id);
 let state=loadCharacter();
 let preview=null;
 let revision=0;
+let queued=false;
 const fields={
   frame:'Frame',height:'Height',build:'Build',faceShape:'Face',skinTone:'Skin tone',
   markings:'Markings',eyeGlow:'Eye light',hair:'Hairstyle',hairColor:'Hair color',
@@ -24,7 +25,7 @@ function update(){
   }
   for(const input of document.querySelectorAll('[data-palette]'))input.value=state.palette[input.dataset.palette];
   $('selection').textContent=state.frame+' · '+state.hair+' · '+state.hood.toLowerCase()+' hood';
-  refresh();
+  if(!queued){queued=true;requestAnimationFrame(()=>{queued=false;refresh()})}
 }
 function controls(){
   for(const [label,keys] of groups){
@@ -84,7 +85,7 @@ async function refresh(){
     const result=await preview.assembler.build(normalize(state));
     if(token!==revision||result.stale)return;
     for(const id of ['front','face','spin'])$(id).disabled=!result.ready;
-    if(result.ready){$('loading').hidden=true;preview.fit()}else showMissing(result);
+    if(result.ready){$('loading').hidden=true;preview.fit(!preview.hasFit);preview.hasFit=true}else showMissing(result);
   }catch(err){
     if(token!==revision)return;
     console.error(err);
@@ -99,18 +100,26 @@ function init(){
   renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.15;
   renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
   host.append(renderer.domElement);
-  scene.add(new THREE.HemisphereLight(0xf0e9df,0x33303a,2.2));
+  scene.add(new THREE.HemisphereLight(0xf0e9df,0x57525a,2.0));
   function light(color,intensity,x,y,z){const l=new THREE.DirectionalLight(color,intensity);l.position.set(x,y,z);scene.add(l);return l}
-  const key=light(0xfff2e1,3,3,5,4);key.castShadow=true;key.shadow.mapSize.set(1024,1024);
-  light(0xe4e5ff,2,-3,3,-4);
+  const key=light(0xfff2e1,2.7,-3,4,5);key.castShadow=true;key.shadow.mapSize.set(1024,1024);
+  key.shadow.camera.left=-1.4;key.shadow.camera.right=1.4;key.shadow.camera.top=2;key.shadow.camera.bottom=-1.4;key.shadow.normalBias=.015;key.target.position.set(0,.85,0);scene.add(key.target);
+  light(0xe4e5ff,1.8,-3,3,-4);
+  light(0xe8d9ce,.85,3,2,4);
+  const ground=new THREE.Mesh(new THREE.PlaneGeometry(12,12),new THREE.ShadowMaterial({opacity:.23}));
+  ground.rotation.x=-Math.PI/2;ground.position.y=.005;ground.receiveShadow=true;scene.add(ground);
   const assembler=new CharacterAssembler(scene);
   let yaw=.22,auto=false,drag=false,lastX=0,zoom=1,desiredZoom=1;
   let center=new THREE.Vector3(0,.9,0),target=center.clone(),height=1.8;
-  function fit(){
+  function fit(reset=false){
     assembler.root.rotation.y=0;
     const bounds=new THREE.Box3().setFromObject(assembler.root);
-    if(!bounds.isEmpty()){bounds.getCenter(center);height=Math.max(bounds.max.y-bounds.min.y,.1);target.copy(center)}
-    desiredZoom=1;
+    if(!bounds.isEmpty()){
+      const oldCenter=center.clone(),oldHeight=height;
+      bounds.getCenter(center);height=Math.max(bounds.max.y-bounds.min.y,.1);
+      if(reset){target.copy(center);desiredZoom=1}
+      else{const relative=target.clone().sub(oldCenter).multiplyScalar(height/oldHeight);target.copy(center).add(relative)}
+    }
   }
   function resize(){const w=host.clientWidth,h=host.clientHeight;if(!w||!h)return;camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h,false)}
   new ResizeObserver(resize).observe(host);resize();
@@ -125,11 +134,11 @@ function init(){
   renderer.setAnimationLoop(()=>{
     const dt=Math.min(clock.getDelta(),.05);if(auto&&assembler.ready)yaw+=dt*.55;
     assembler.root.rotation.y=yaw;zoom+=(desiredZoom-zoom)*Math.min(dt*9,1);
-    const distance=height*2.35/zoom*Math.max(1,.65/camera.aspect);
+    const distance=height*2.15/zoom*Math.max(1,.65/camera.aspect);
     camera.position.set(target.x,target.y+height*.05,distance);camera.lookAt(target);
     renderer.render(scene,camera);
   });
-  preview={assembler,fit};
+  preview={assembler,fit,hasFit:false};
   refresh();
 }
 controls();
