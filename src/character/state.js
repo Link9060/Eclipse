@@ -41,12 +41,12 @@ export function normalize(raw={}){
   }
   return out;
 }
-export function loadCharacter(storage=globalThis.localStorage){
-  try{return normalize(JSON.parse(storage.getItem(storageKey)||storage.getItem('eclipse.character.v1')||'{}'))}
+export function loadCharacter(storage){
+  try{storage=storage??globalThis.localStorage;return normalize(JSON.parse(storage.getItem(storageKey)||storage.getItem('eclipse.character.v1')||'{}'))}
   catch{return normalize()}
 }
-export function saveCharacter(state,storage=globalThis.localStorage){
-  try{storage.setItem(storageKey,JSON.stringify(normalize(state)));return true}catch{return false}
+export function saveCharacter(state,storage){
+  try{storage=storage??globalThis.localStorage;storage.setItem(storageKey,JSON.stringify(normalize(state)));return true}catch{return false}
 }
 export const skinColors={Obsidian:'#232229',Ash:'#45434a',Slate:'#383e47',Midnight:'#191d2b'};
 export const hairColors={White:'#f4f0eb',Ivory:'#e1d9c9',Silver:'#bfc3c9'};
