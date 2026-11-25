@@ -1,93 +1,45 @@
 import * as THREE from 'three';
-import { options, defaults, loadCharacter, saveCharacter, normalize, resolveSlots } from './character/state.js';
+import { creatorOptions, loadCharacter, saveCharacter, normalizeCreator } from './character/state.js';
 import { CharacterAssembler } from './character/CharacterAssembler.js';
 const $=id=>document.getElementById(id);
-let state=loadCharacter();
+let state=normalizeCreator(loadCharacter());
 let preview=null;
 let revision=0;
 let queued=false;
 const reducedMotion=matchMedia('(prefers-reduced-motion: reduce)');
-const motionPreview={enabled:!reducedMotion.matches,wind:0.85,direction:45,speed:0,quality:1};
-const fields={
-  frame:'Frame',height:'Height',build:'Build',faceShape:'Face',skinTone:'Skin tone',
-  markings:'Markings',eyeGlow:'Eye light',hair:'Hairstyle',hairColor:'Hair color',
-  hood:'Hood preview',cloakPattern:'Cloak pattern',mantleStyle:'Mantle',
-  tunicStyle:'Tunic',beltStyle:'Belt',wrapDensity:'Wraps',bootStyle:'Boots'
-};
-const groups=[
-  ['Body',['frame','height','build']],
-  ['Face',['faceShape','skinTone','markings','eyeGlow']],
-  ['Hair',['hair','hairColor']],
-  ['Traveler’s kit',['hood','cloakPattern','mantleStyle','tunicStyle','beltStyle','wrapDensity','bootStyle']]
-];
+const motionPreview={wind:0.85,direction:45,speed:0,quality:1};
+const fields={frame:'Gender',hair:'Hairstyle'};
 function update(){
   saveCharacter(state);
   for(const b of document.querySelectorAll('[data-field]')){
     b.setAttribute('aria-pressed',String(state[b.dataset.field]===b.dataset.value));
   }
-  for(const input of document.querySelectorAll('[data-palette]'))input.value=state.palette[input.dataset.palette];
-  $('selection').textContent=state.frame+' · '+state.hair+' · '+state.hood.toLowerCase()+' hood';
+  $('selection').textContent=state.frame+' · '+state.hair;
   if(!queued){queued=true;requestAnimationFrame(()=>{queued=false;refresh()})}
 }
 function controls(){
-  for(const [label,keys] of groups){
-    const section=document.createElement('details');
-    section.className='section';
-    section.open=['Body','Hair'].includes(label);
-    const title=document.createElement('summary');title.textContent=label;section.append(title);
-    for(const field of keys){
-      const row=document.createElement('div');row.className='field';
-      const heading=document.createElement('div');heading.className='label';heading.textContent=fields[field];row.append(heading);
-      const choices=document.createElement('div');choices.className=field==='hair'?'choices hair':'choices';
-      choices.setAttribute('role','group');choices.setAttribute('aria-label',fields[field]);
-      for(const value of options[field]){
-        const b=document.createElement('button');b.type='button';b.className='choice';
-        b.dataset.field=field;b.dataset.value=value;b.textContent=value;
-        b.onclick=()=>{state[field]=value;update()};
-        choices.append(b);
-      }
-      row.append(choices);section.append(row);
+  for(const [field,values] of Object.entries(creatorOptions)){
+    const section=document.createElement('section');section.className='section';
+    const heading=document.createElement('h3');heading.className='creator-heading';heading.textContent=fields[field];section.append(heading);
+    const choices=document.createElement('div');choices.className=field==='hair'?'choices hair':'choices';
+    choices.setAttribute('role','group');choices.setAttribute('aria-label',fields[field]);
+    for(const value of values){
+      const b=document.createElement('button');b.type='button';b.className='choice';
+      b.dataset.field=field;b.dataset.value=value;b.textContent=value;
+      b.onclick=()=>{state=normalizeCreator({...state,[field]:value});update()};
+      choices.append(b);
     }
+    section.append(choices);
     $('options').append(section);
   }
-  for(const key of Object.keys(defaults.palette)){
-    const label=document.createElement('label');label.className='palette-row';label.textContent=key;
-    const input=document.createElement('input');input.type='color';input.dataset.palette=key;input.setAttribute('aria-label',key+' color');
-    input.oninput=()=>{state.palette[key]=input.value;update()};label.append(input);$('palette').append(label);
-  }
-  const motionSection=document.createElement('details');motionSection.className='section';motionSection.open=true;
-  const motionTitle=document.createElement('summary');motionTitle.textContent='Wind & motion preview';motionSection.append(motionTitle);
-  const note=document.createElement('p');note.textContent='Test cloth and hair response without moving the body.';motionSection.append(note);
-  const toggle=document.createElement('label');toggle.className='palette-row';toggle.textContent='Dynamic garments';
-  const enabled=document.createElement('input');enabled.type='checkbox';enabled.checked=motionPreview.enabled;enabled.onchange=()=>{motionPreview.enabled=enabled.checked};toggle.append(enabled);motionSection.append(toggle);
-  function range(label,key,min,max,step,format){
-    const wrap=document.createElement('label');wrap.className='field';wrap.style.display='block';
-    const top=document.createElement('div');top.className='label';top.textContent=label;
-    const readout=document.createElement('span');readout.textContent=format(motionPreview[key]);top.append(readout);
-    const input=document.createElement('input');input.type='range';input.min=min;input.max=max;input.step=step;input.value=motionPreview[key];input.style.width='100%';
-    input.oninput=()=>{motionPreview[key]=Number(input.value);readout.textContent=format(motionPreview[key])};
-    wrap.append(top,input);motionSection.append(wrap);
-  }
-  range('Wind speed','wind',0,4,.1,v=>v.toFixed(1)+' m/s');
-  range('Wind direction','direction',0,360,5,v=>v+'°');
-  const speedGroup=document.createElement('div');speedGroup.className='choices';
-  for(const [title,speed] of [['Idle',0],['Walk test',1.5],['Run test',4]]){
-    const button=document.createElement('button');button.type='button';button.className='choice';button.textContent=title;button.dataset.speed=speed;
-    button.setAttribute('aria-pressed',String(motionPreview.speed===speed));button.onclick=()=>{motionPreview.speed=speed;for(const b of speedGroup.children)b.setAttribute('aria-pressed',String(Number(b.dataset.speed)===speed))};speedGroup.append(button);
-  }
-  motionSection.append(speedGroup);
-  range('Motion strength','quality',0,1,.25,v=>Math.round(v*100)+'%');
-  $('options').append(motionSection);
-  $('name').value=state.name;
-  $('name').oninput=()=>{state.name=$('name').value;saveCharacter(state)};
-  $('randomize').onclick=()=>{for(const key of ['frame','faceShape','hair','markings','hairColor']){const list=options[key];state[key]=list[Math.floor(Math.random()*list.length)]}update()};
-  $('reset').onclick=()=>{state=normalize();$('name').value=state.name;update()};
+  $('randomize').onclick=()=>{const {frame,hair}=creatorOptions;state=normalizeCreator({frame:frame[Math.floor(Math.random()*frame.length)],hair:hair[Math.floor(Math.random()*hair.length)]});update()};
+  $('reset').onclick=()=>{state=normalizeCreator();update()};
   $('begin').onclick=()=>{
     const persisted=saveCharacter(state);
-    $('status').textContent=persisted?'Traveler configuration saved locally.':'Storage unavailable; configuration remains in this session.';
-    $('summary').textContent=(state.name.trim()||'Unnamed traveler')+' · '+state.frame+' · '+state.hair;
+    $('status').textContent=persisted?'Traveler saved locally.':'Storage unavailable; selection remains in this session.';
+    $('summary').textContent=state.frame+' · '+state.hair+' · Concordant garments';
     $('confirmed').classList.add('open');$('back').focus();
-    window.dispatchEvent(new CustomEvent('eclipse:character-confirmed',{detail:{...normalize(state),hood:'Down'}}));
+    window.dispatchEvent(new CustomEvent('eclipse:character-confirmed',{detail:normalizeCreator(state)}));
   };
   $('back').onclick=()=>{$('confirmed').classList.remove('open');$('begin').focus()};
   document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('confirmed').classList.contains('open'))$('back').click()});
@@ -107,7 +59,7 @@ async function refresh(){
   $('asset-message').textContent='Loading selected character meshes…';
   $('missing').replaceChildren();
   try{
-    const result=await preview.assembler.build(normalize(state));
+    const result=await preview.assembler.build(normalizeCreator(state));
     if(token!==revision||result.stale)return;
     for(const id of ['front','face','spin'])$(id).disabled=!result.ready;
     if(result.ready){$('loading').hidden=true;preview.fit(!preview.hasFit);preview.hasFit=true}else showMissing(result);
@@ -159,7 +111,7 @@ function init(){
   renderer.setAnimationLoop(()=>{
     const dt=Math.min(clock.getDelta(),.05);if(auto&&assembler.ready)yaw+=dt*.55;
     const direction=motionPreview.direction*Math.PI/180+yaw;
-    assembler.motion.setEnabled(motionPreview.enabled);
+    assembler.motion.setEnabled(!reducedMotion.matches);
     assembler.motion.setQuality(motionPreview.quality);
     assembler.motion.update(dt,Math.cos(direction)*motionPreview.wind,Math.sin(direction)*motionPreview.wind,0,motionPreview.speed);
     assembler.root.rotation.y=yaw;zoom+=(desiredZoom-zoom)*Math.min(dt*9,1);
