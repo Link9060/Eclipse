@@ -1,24 +1,24 @@
 # ECLIPSE
 
-Browser-based stylized 3D adventure with 2D gameplay and an angled orthographic camera.
+Browser-based stylized 3D adventure with 2D gameplay and an angled camera.
 
-## Character creator — first prototype
+## Character creator v0.2 — GLB foundation
 
-Open `index.html` in a modern WebGL-capable browser with internet access (Three.js is pinned to 0.160.1 on jsDelivr). For local development, run `python3 -m http.server 8000` in the repository and open http://localhost:8000. No build tooling required.
+Run `python3 -m http.server 8000` and open http://localhost:8000, or visit https://link9060.github.io/Eclipse/. GitHub Actions deploys pushes to main when GitHub Pages uses the Actions source.
 
-For GitHub Pages: Settings → Pages → Build and deployment → Source → GitHub Actions. The workflow in `.github/workflows/deploy.yml` publishes on pushes to `main`, or manually via Actions → Deploy Eclipse → Run workflow. The expected site URL is https://link9060.github.io/Eclipse/. The workflow stages `index.html` and any `assets`, `src`, or `public` directories; update the staging step if the site layout changes.
+The character creator supports body frame, height, build, facial silhouette, skin, markings, eye light, 12 hairstyles, hair color, hood, cloak pattern, mantle, tunic, belt, wraps, boots and four material colors. State is versioned and persisted under `eclipse.character.v2`; v1 choices migrate automatically. Confirmation emits `eclipse:character-confirmed` with the Stage I kit and gameplay hood down.
 
-### Features
+## Art status
 
-- Male and female Concordant frames; 12 hairstyles; three facial silhouettes; four marking options.
-- Fixed obsidian skin, ivory hair and black-and-white Stage I traveler garments.
-- Orthographic 3D preview, drag rotation, zoom, face view, and hood preview.
-- Name entry, randomization, reset, and local browser persistence.
+Production character meshes have not been created. The procedural block character has been removed. Until all required meshes for a selection exist, the creator displays missing slot names rather than an inaccurate character. Controls save the selected configuration even without meshes.
 
-### Integration
+## Architecture
 
-Character data is stored under `eclipse.character.v1` in localStorage. Confirmation dispatches the `eclipse:character-confirmed` event with versioned character data, the starting kit `concordant-traveler`, and `garmentStage: 1`. The hood preview is not a gameplay preference; confirmation uses Down and the future world system should control hood state automatically.
+- `src/character/state.js`: schema, validation, asset paths and local saves.
+- `src/character/CharacterAssembler.js`: GLTFLoader, independent slot instances, material customization, race-safe loading.
+- `src/creator.js`: controls, renderer, camera, confirmation event.
+- `assets/characters/ASSET_SPEC.md`: exact conventions for art production.
 
-### Scope
+The creator is a static rest-pose preview foundation. Shared animation playback, attachment fitting, collision, final artwork and the playable prologue are future work.
 
-The model is a procedural low-poly placeholder, not final production artwork or a rigged character. The playable prologue, animation, equipment inventory, scene transitions, and Eclipse garment evolution are not implemented yet. The external CDN and WebGL are required for the preview; customization remains usable if preview initialization fails.
+Three.js is pinned to 0.160.1 and loaded from jsDelivr. Internet access and WebGL are needed for 3D rendering.
