@@ -37,10 +37,10 @@ export function motionProfile(slot,name,explicit){
   return null;
 }
 const profiles={
-  hair:{anchor:1.74,span:.19,amplitude:.019,frequency:3.1,trail:.013},
-  cloak:{anchor:1.42,span:1.15,amplitude:.056,frequency:1.8,trail:.043},
-  panel:{anchor:1.035,span:.56,amplitude:.025,frequency:2.4,trail:.012},
-  mantle:{anchor:1.44,span:.25,amplitude:.012,frequency:2.2,trail:.007}
+  hair:{anchor:1.70,span:.19,amplitude:.009,frequency:3.1,trail:.006},
+  cloak:{anchor:1.29,span:1.05,amplitude:.035,frequency:1.8,trail:.025},
+  panel:{anchor:.97,span:.50,amplitude:.012,frequency:2.4,trail:.005},
+  mantle:{anchor:1.33,span:.18,amplitude:.006,frequency:2.2,trail:.003}
 };
 function patch(material,motion,profile){
   const p=profiles[profile];
@@ -63,15 +63,19 @@ vec3 eclipseDeform(vec3 p){
   float ripple=sin(phase)+0.35*sin(phase*1.61+p.z*9.0);
   float flutter=ripple*${p.amplitude.toFixed(3)}*(0.12+0.88*eclipseGust);
   vec2 bend=eclipseFlow*${p.trail.toFixed(3)};
-  p.x+=eclipseStrength*freeEnd*(bend.x+flutter);
-  p.z+=eclipseStrength*freeEnd*(bend.y+flutter*0.55);
+  vec2 delta=eclipseStrength*freeEnd*(bend+vec2(flutter,flutter*0.55));
+  // Restrict displacement toward the body. This is a cheap directional
+  // constraint, not full collision detection. The cloth geometry has clearance.
+  ${profile==='cloak'?'delta.y=min(delta.y,0.0); delta.x=clamp(delta.x,-0.045,0.045);':profile==='panel'?'delta.y=max(delta.y,0.0); delta.x=clamp(delta.x,-0.012,0.012);':profile==='hair'?'delta.x=clamp(delta.x,-0.012,0.012); delta.y=clamp(delta.y,-0.006,0.012);':'delta.x=clamp(delta.x,-0.008,0.008); delta.y=max(delta.y,0.0);'}
+  p.x+=delta.x;
+  p.z+=delta.y;
   return p;
 }
 `;
     shader.vertexShader=shader.vertexShader.replace('#include <common>','#include <common>\n'+declaration);
     shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\ntransformed=eclipseDeform(transformed);');
   };
-  material.customProgramCacheKey=()=>previousKey+'|eclipse-motion-v2|'+profile;
+  material.customProgramCacheKey=()=>previousKey+'|eclipse-motion-v3|'+profile;
   material.needsUpdate=true;
 }
 export function attachSecondaryMotion(mesh,slot,motion){
