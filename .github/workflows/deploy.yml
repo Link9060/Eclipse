@@ -25,6 +25,12 @@ jobs:
         uses: actions/checkout@v6
       - name: Configure Pages
         uses: actions/configure-pages@v5
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Generate missing traveler assets
+        run: node scripts/build-traveler.mjs
       - name: Prepare website
         run: |
           test -s index.html
