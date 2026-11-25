@@ -86,16 +86,16 @@ function hair(m,style){
   function surface(phi,t){
     const front=Math.max(0,Math.sin(phi)),back=Math.max(0,-Math.sin(phi));
     const a=phi+(part?.56:crop?.12:.30)*t;
-    const groove=.5+.5*Math.cos(phi*(crop?20:13)+.65*Math.sin(phi*3));
+    const groove=.5+.5*Math.cos(phi*(crop?20:11)+.95*Math.sin(phi*3));
     let end=1.48-.53*front+.40*back;
     if(crop)end=1.39-.43*front+.30*back;
     if(bob||long||locs)end+=.14*(1-front);
     if(braided||knot)end-=.12*back;
-    if(!crop)end+=.16*Math.pow(groove,3)*(.45+.55*front);
+    if(!crop)end+=.25*Math.pow(groove,2)*(.60+.40*front);
     const theta=.006+(end-.006)*t;
-    const volume=(crop?.006:.014)*Math.sin(theta);
-    const ridge=(crop?.002:.006)*Math.pow(Math.sin(PI*t*.92),.65)*(groove-.38);
-    const waviness=wave?.006*Math.sin(t*8+phi*4)*Math.sin(PI*t):0;
+    const edge=Math.pow(t,9); const volume=(crop?.005:.017)*Math.sin(theta)*(1-edge*.72);
+    const ridge=(crop?.002:.009)*Math.pow(Math.sin(PI*t*.92),.65)*(groove-.38);
+    const waviness=wave?.011*Math.sin(t*8+phi*4)*Math.sin(PI*t):0;
     const peak=spike?.025*Math.pow(groove,3)*Math.sin(PI*t):0;
     return V(center[0]+(.103+volume+ridge+waviness)*Math.sin(theta)*Math.cos(a)-.008*(1-t),
       center[1]+(.130+volume*.4)*Math.cos(theta)+peak+.003*Math.sin(phi*4)*Math.sin(PI*t),
@@ -226,28 +226,30 @@ function mantle(m,b,style){
   const rows=Array.from({length:19},(_,j)=>Array.from({length:25},(_,i)=>drape(i/24,j/18)));
   m.sheet('cloak_back','primary',rows);
   // Lining is offset on the interior and shares the identical fold topology.
-  m.sheet('cloak_lining','lining',rows.map(row=>row.map(p=>V(p[0]*.987,p[1],p[2]+.007))));
+  // Single double-sided textile surface avoids intersecting inner and outer sheets.
   for(const u of [0,1]){
     const edge=rows.map(row=>row[u===0?0:24]);
     m.ribbon('pattern_trim_cloak','accent',edge.map(p=>add(p,V(0,0,-.006))),.013);
   }
   const hem=rows.at(-1).map(p=>add(p,V(0,.013,-.008)));
   m.ribbon('pattern_trim_cloak','accent',hem,.013);
-  // Shoulder cape is separated from sleeves and torso by an intentional air gap.
-  for(const side of [-1,1]){
-    const role=side<0?'primary':'secondary';
-    const grid=Array.from({length:6},(_,j)=>Array.from({length:9},(_,i)=>{
-      const t=j/5,u=i/8, a=-.45+u*(PI*.80);
-      const x=side*(.035+(b.shoulder+.115-.035)*t)*Math.sin(a+.6);
-      const y=1.452-.20*t-.025*u+.010*Math.sin(t*PI*3);
-      const z=.105+.075*Math.sin(a)-.015*t+.009*Math.sin(u*PI*5)*t;
-      return V(x,y,z);
-    }));
-    m.sheet('shoulder_mantle',role,grid);
-    if(side<0)m.ribbon('pattern_trim_mantle','accent',grid.at(-1).map(p=>add(p,V(0,0,.009))),.012);
+  // One continuous shoulder capelet: the two colors share an identical seam,
+  // rather than two independent sheets crossing the torso and cloak.
+  function shoulder(u,t){
+    const angle=-PI/2+u*tau;
+    const rx=.085+(b.shoulder+.095-.085)*t;
+    const rz=.085+.122*t;
+    const fold=.007*Math.sin(angle*5+t*4)*t;
+    const y=1.46-.245*t+.043*Math.cos(angle)*t+.016*Math.sin(angle*2)*t;
+    return V((rx+fold)*Math.cos(angle),y,(rz+fold)*Math.sin(angle));
   }
-  m.diamond('clasp','metal',0,1.38,.197,.024,.026);
-  m.diamond('clasp_inner','accent',0,1.38,.200,.011,.014);
+  const capeRows=Array.from({length:9},(_,j)=>Array.from({length:49},(_,i)=>shoulder(i/48,j/8)));
+  // Split at shared vertices, so the light and dark fabric cannot overlap.
+  m.sheet('shoulder_mantle','primary',capeRows.map(row=>row.slice(0,25)));
+  m.sheet('shoulder_mantle','secondary',capeRows.map(row=>row.slice(24)));
+  m.ribbon('pattern_trim_mantle','accent',capeRows.at(-1).slice(0,25).map(p=>V(p[0]*1.025,p[1]+.005,p[2]*1.025)),.009);
+  m.diamond('clasp','metal',0,1.38,.208,.024,.026);
+  m.diamond('clasp_inner','accent',0,1.38,.211,.011,.014);
 }
 function trousers(m,b){
   for(const s of [-1,1])m.loft('folded_trousers','secondary',[[s*.105,.29,-.005,.06,.06],[s*.105,.37,-.018,.081,.068],[s*.12,.46,.006,.10,.086],[s*.10,.55,-.008,.095,.084],[s*.105,.66,.004,.11,.095],[s*.10,.80,-.005,.112,.107],[s*.09,.95,0,b.hip*.59,.105]],10,.18);
