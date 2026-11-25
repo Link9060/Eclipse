@@ -30,7 +30,7 @@
 </main>
 <script type="module">
 const release=document.getElementById('build-label');
-release.textContent=' / '+(release.dataset.build==='BUILD_LOCAL'?'local':release.dataset.build.slice(0,7));
+release.textContent=' / '+(release.dataset.build.length===40?release.dataset.build.slice(0,7):'local');
 import('./src/creator.js').catch(error=>{
  console.error(error);
  document.getElementById('asset-title').textContent='Creator could not start';
