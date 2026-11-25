@@ -6,6 +6,8 @@ let state=loadCharacter();
 let preview=null;
 let revision=0;
 let queued=false;
+const reducedMotion=matchMedia('(prefers-reduced-motion: reduce)');
+const motionPreview={enabled:!reducedMotion.matches,wind:0.85,direction:45,speed:0,quality:1};
 const fields={
   frame:'Frame',height:'Height',build:'Build',faceShape:'Face',skinTone:'Skin tone',
   markings:'Markings',eyeGlow:'Eye light',hair:'Hairstyle',hairColor:'Hair color',
@@ -53,6 +55,29 @@ function controls(){
     const input=document.createElement('input');input.type='color';input.dataset.palette=key;input.setAttribute('aria-label',key+' color');
     input.oninput=()=>{state.palette[key]=input.value;update()};label.append(input);$('palette').append(label);
   }
+  const motionSection=document.createElement('details');motionSection.className='section';motionSection.open=true;
+  const motionTitle=document.createElement('summary');motionTitle.textContent='Wind & motion preview';motionSection.append(motionTitle);
+  const note=document.createElement('p');note.textContent='Test cloth and hair response without moving the body.';motionSection.append(note);
+  const toggle=document.createElement('label');toggle.className='palette-row';toggle.textContent='Dynamic garments';
+  const enabled=document.createElement('input');enabled.type='checkbox';enabled.checked=motionPreview.enabled;enabled.onchange=()=>{motionPreview.enabled=enabled.checked};toggle.append(enabled);motionSection.append(toggle);
+  function range(label,key,min,max,step,format){
+    const wrap=document.createElement('label');wrap.className='field';wrap.style.display='block';
+    const top=document.createElement('div');top.className='label';top.textContent=label;
+    const readout=document.createElement('span');readout.textContent=format(motionPreview[key]);top.append(readout);
+    const input=document.createElement('input');input.type='range';input.min=min;input.max=max;input.step=step;input.value=motionPreview[key];input.style.width='100%';
+    input.oninput=()=>{motionPreview[key]=Number(input.value);readout.textContent=format(motionPreview[key])};
+    wrap.append(top,input);motionSection.append(wrap);
+  }
+  range('Wind speed','wind',0,4,.1,v=>v.toFixed(1)+' m/s');
+  range('Wind direction','direction',0,360,5,v=>v+'°');
+  const speedGroup=document.createElement('div');speedGroup.className='choices';
+  for(const [title,speed] of [['Idle',0],['Walk test',1.5],['Run test',4]]){
+    const button=document.createElement('button');button.type='button';button.className='choice';button.textContent=title;button.dataset.speed=speed;
+    button.setAttribute('aria-pressed',String(motionPreview.speed===speed));button.onclick=()=>{motionPreview.speed=speed;for(const b of speedGroup.children)b.setAttribute('aria-pressed',String(Number(b.dataset.speed)===speed))};speedGroup.append(button);
+  }
+  motionSection.append(speedGroup);
+  range('Motion strength','quality',0,1,.25,v=>Math.round(v*100)+'%');
+  $('options').append(motionSection);
   $('name').value=state.name;
   $('name').oninput=()=>{state.name=$('name').value;saveCharacter(state)};
   $('randomize').onclick=()=>{for(const key of ['frame','faceShape','hair','markings','hairColor']){const list=options[key];state[key]=list[Math.floor(Math.random()*list.length)]}update()};
@@ -133,6 +158,10 @@ function init(){
   const clock=new THREE.Clock();
   renderer.setAnimationLoop(()=>{
     const dt=Math.min(clock.getDelta(),.05);if(auto&&assembler.ready)yaw+=dt*.55;
+    const direction=motionPreview.direction*Math.PI/180-yaw;
+    assembler.motion.setEnabled(motionPreview.enabled);
+    assembler.motion.setQuality(motionPreview.quality);
+    assembler.motion.update(dt,Math.cos(direction)*motionPreview.wind,Math.sin(direction)*motionPreview.wind,0,motionPreview.speed);
     assembler.root.rotation.y=yaw;zoom+=(desiredZoom-zoom)*Math.min(dt*9,1);
     const distance=height*2.15/zoom*Math.max(1,.65/camera.aspect);
     camera.position.set(target.x,target.y+height*.05,distance);camera.lookAt(target);
