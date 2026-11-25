@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { clone as cloneRig } from 'three/addons/utils/SkeletonUtils.js';
 import { resolveSlots, skinColors, hairColors } from './state.js';
+import { SecondaryMotion, attachSecondaryMotion } from './SecondaryMotion.js';
 
 const heightScale={Short:.94,Medium:1,Tall:1.06};
 export class CharacterAssembler {
@@ -13,6 +14,7 @@ export class CharacterAssembler {
     this.cache=new Map();
     this.revision=0;
     this.ready=false;
+    this.motion=new SecondaryMotion();
   }
   load(url){
     if(!this.cache.has(url)){
@@ -27,6 +29,7 @@ export class CharacterAssembler {
         const materials=Array.isArray(obj.material)?obj.material:[obj.material];
         materials.forEach(m=>m?.dispose());
         if(obj.isSkinnedMesh)obj.skeleton?.dispose();
+        obj.customDepthMaterial?.dispose();
       }
     });
     group.removeFromParent();
@@ -69,6 +72,7 @@ export class CharacterAssembler {
         const name=obj.name.toLowerCase();
         if(name.startsWith('pattern_trim'))obj.visible=state.cloakPattern!=='None';
         if(name.startsWith('pattern_border'))obj.visible=state.cloakPattern==='Full border';
+        attachSecondaryMotion(obj,slots[i].id,this.motion);
       });
       assembled.add(part);
     }
