@@ -7,7 +7,6 @@ export class SecondaryMotion {
     this.uniforms={eclipseTime:{value:0},eclipseFlow:{value:new THREE.Vector2()},eclipseGust:{value:0},eclipseStrength:{value:1}};
     this.velocity=new THREE.Vector2();
     this.target=new THREE.Vector2();
-    this.wind=new THREE.Vector2(.65,-.15);
     this.enabled=true;
     this.quality=1;
   }
@@ -56,7 +55,9 @@ uniform vec2 eclipseFlow;
 uniform float eclipseGust;
 uniform float eclipseStrength;
 vec3 eclipseDeform(vec3 p){
+  if(eclipseStrength<=0.0) return p;
   float freeEnd=clamp((${p.anchor.toFixed(3)}-p.y)/${p.span.toFixed(3)},0.0,1.0);
+  if(freeEnd<=0.0) return p;
   freeEnd=freeEnd*freeEnd;
   float phase=eclipseTime*${p.frequency.toFixed(3)}+p.x*12.0+p.y*4.2;
   float ripple=sin(phase)+0.35*sin(phase*1.61+p.z*9.0);
@@ -70,7 +71,7 @@ vec3 eclipseDeform(vec3 p){
     shader.vertexShader=shader.vertexShader.replace('#include <common>','#include <common>\n'+declaration);
     shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\ntransformed=eclipseDeform(transformed);');
   };
-  material.customProgramCacheKey=()=>previousKey+'|eclipse-motion-v1|'+profile;
+  material.customProgramCacheKey=()=>previousKey+'|eclipse-motion-v2|'+profile;
   material.needsUpdate=true;
 }
 export function attachSecondaryMotion(mesh,slot,motion){
