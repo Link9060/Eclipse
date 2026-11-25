@@ -21,6 +21,14 @@ Run `node scripts/build-traveler.mjs` before serving locally. GitHub Actions run
 - `src/creator.js`: controls, renderer, camera, confirmation event.
 - `assets/characters/ASSET_SPEC.md`: exact conventions for art production.
 
-The creator is a static rest-pose art-blockout preview. Shared animation playback, attachment fitting, collision, final artwork and the playable prologue are future work.
+The creator is a rest-pose art-blockout preview with GPU secondary motion. Shared animation playback, attachment fitting, collision, final artwork and the playable prologue are future work.
+
+## Lightweight secondary motion
+
+Open **Wind & motion preview** in the creator to control wind speed, direction, motion strength and simulated idle/walk/run speeds. These are preview controls, not body locomotion.
+
+`src/character/SecondaryMotion.js` applies bounded, damped wind response and GPU vertex deformation to hair tips, cloak, loose tunic panels and mantle. Matching depth shaders deform directional-light shadows. No per-vertex CPU physics, per-frame mesh uploads, cloth collision or full simulation is used. Reduced-motion preferences disable the effect by default; the shader skips deformation when disabled. Actual FPS costs and clipping still require browser testing.
+
+Future gameplay should call `assembler.motion.update(dt, localWindX, localWindZ, localVelocityX, localVelocityZ)` once per visible animated character per frame. Use `setEnabled(false)` for distant NPCs or low-quality mode. Current profiles assume the generated static meshes are in shared rest-space coordinates; future rigged assets need a rig-aware adapter.
 
 Three.js is pinned to 0.160.1 and loaded from jsDelivr. Internet access and WebGL are needed for 3D rendering.
