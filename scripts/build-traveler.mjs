@@ -190,9 +190,11 @@ function tunic(m,b,style){
     const width=style==='narrow'?.115:.155;
     function panel(u,t,outer){
       const x=side*(.023+.055*t+u*width*(1-.64*Math.pow(t,5)));
-      const y=1.005+(end-1.005)*t+.035*u*t;
+      const y=1.017+(end-1.017)*t+.035*u*t;
       // Loose front cloth remains outside the trousers; inner panels are laterally offset.
-      const z=(outer?.205:.163)+.019*Math.sin(u*PI*2)*Math.sin(PI*t)+.019*t;
+      const release=Math.min(1,t*5);
+      const root=outer?.151:.130;
+      const z=root+((outer?.205:.169)-root)*release+.014*Math.sin(u*PI*2)*Math.sin(PI*t)+.019*t;
       return V(x+(outer?0:side*.045),y+(outer?0:-.025),z);
     }
     const grid=Array.from({length:12},(_,j)=>Array.from({length:9},(_,i)=>panel(i/8,j/11,true)));
