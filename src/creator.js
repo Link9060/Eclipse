@@ -158,7 +158,7 @@ function init(){
   const clock=new THREE.Clock();
   renderer.setAnimationLoop(()=>{
     const dt=Math.min(clock.getDelta(),.05);if(auto&&assembler.ready)yaw+=dt*.55;
-    const direction=motionPreview.direction*Math.PI/180-yaw;
+    const direction=motionPreview.direction*Math.PI/180+yaw;
     assembler.motion.setEnabled(motionPreview.enabled);
     assembler.motion.setQuality(motionPreview.quality);
     assembler.motion.update(dt,Math.cos(direction)*motionPreview.wind,Math.sin(direction)*motionPreview.wind,0,motionPreview.speed);
