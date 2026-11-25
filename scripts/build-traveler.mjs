@@ -79,37 +79,69 @@ function head(m,frame,shape){
   m.ribbon('mouth','shadow',[V(-.022,1.536,.093),V(0,1.531,.099),V(.022,1.536,.093)],.005);
 }
 function hair(m,style){
-  // A fitted crown with individually shaped, overlapping swept locks.
-  m.loft('crown','hair',[[0,1.65,-.05,.090,.066],[0,1.697,-.015,.104,.092],[0,1.737,-.014,.083,.079],[-.015,1.764,-.018,.032,.032]],14,.065);
-  if(style==='cropped')return;
-  const long=['long','bob','braid','twin-braids','locs'].includes(style);
-  const spikes=style==='spiked';
-  const strands=[
-    [-.076,-.056,-.086,1.643,.030],[-.064,-.017,-.033,1.607,.034],
-    [-.038,.012,.027,1.622,.039],[-.012,.043,.073,1.654,.034],
-    [.014,.066,.099,1.637,.026],[.039,.081,.101,1.674,.024],
-    [.057,.095,.112,1.682,.019]
-  ];
-  // Wedge-shaped locks have a raised ridge and irregular pointed tips.
-  for(let i=0;i<strands.length;i++){
-    let [root,mid,tip,endY,w]=strands[i];
-    if(style==='side-part'){mid+=.014;tip+=.014}
-    if(spikes){tip*=1.25;endY=1.77+Math.sin(i*2.3)*.035}
-    const a=V(root,1.747-Math.abs(root)*.20,.031),b=V(mid,1.702-i%3*.009,.101+Math.sin(i)*.006),c=V(tip,endY,.105-i*.002);
-    const width=V(w,0,0), ridge=V(0,.009,.014);
-    m.tri('lock_'+i,'hair',sub(a,mul(width,.65)),sub(b,width),add(b,ridge));
-    m.tri('lock_'+i,'hair',sub(a,mul(width,.65)),add(b,ridge),add(a,mul(width,.65)));
-    m.tri('lock_'+i,'hair',add(a,mul(width,.65)),add(b,ridge),add(b,width));
-    m.tri('lock_'+i,'hair',sub(b,width),c,add(b,ridge));
-    m.tri('lock_'+i,'hair',add(b,ridge),c,add(b,width));
+  // Continuous scalp cap conforms to the head, with a higher front hairline.
+  const center=V(0,1.635,-.009);
+  const scalp=(theta,phi,o=0)=>V((.106+o)*Math.sin(theta)*Math.cos(phi),1.635+(.128+o)*Math.cos(theta),-.009+(.109+o)*Math.sin(theta)*Math.sin(phi));
+  const rows=[];
+  for(let j=0;j<=8;j++){
+    const row=[];
+    for(let i=0;i<=28;i++){
+      const phi=tau*i/28,front=Math.max(0,Math.sin(phi)),back=Math.max(0,-Math.sin(phi));
+      row.push(scalp(.012+(1.46-.40*front+.49*back-.012)*j/8,phi,.0015*Math.sin(phi*9+j*.5)));
+    }
+    rows.push(row);
+  }
+  m.sheet('crown','hair',rows);
+  const curve=(a,b,c,d,count=8)=>Array.from({length:count},(_,i)=>{const t=i/(count-1),u=1-t;return add(add(mul(a,u*u*u),mul(b,3*u*u*t)),add(mul(c,3*u*t*t),mul(d,t*t*t)))});
+  // Curved, flattened oval locks with tapered tips and raised ridges.
+  function lock(name,points,width,depth){
+    const rows=points.map((p,j)=>{
+      const d=unit(sub(points[Math.min(j+1,points.length-1)],points[Math.max(j-1,0)]));
+      let side=unit(cross(d,unit(sub(p,center))));
+      if(Math.hypot(...side)<.1)side=unit(cross(d,V(0,0,1)));
+      if(Math.hypot(...side)<.1)side=V(1,0,0);
+      const normal=unit(cross(side,d)),t=j/(points.length-1);
+      const w=width*(.55+.65*Math.sin(PI*t))*(1-t*.88),h=depth*(.55+.6*Math.sin(PI*t))*(1-t*.85);
+      return Array.from({length:9},(_,i)=>add(p,add(mul(side,Math.cos(tau*i/8)*w),mul(normal,Math.sin(tau*i/8)*h))));
+    });
+    m.sheet(name,'hair',rows);
+  }
+  const crop=style==='cropped',long=['long','bob','braid','twin-braids','locs'].includes(style),spike=style==='spiked',part=style==='side-part',wave=style==='waves';
+  for(let i=0;i<20;i++){
+    const phi=tau*i/20;
+    if(Math.sin(phi)>.3&&!crop)continue;
+    const a=scalp(.20+(i%3)*.10,phi-.25,.003),b=scalp(.65,phi-.14,.009),c=scalp(1.12,phi+.12,.010),d=scalp((crop?1.40:1.53)+Math.max(0,-Math.sin(phi))*.31,phi+.24,.003);
+    lock('scalp_lock_'+i,curve(a,b,c,d),crop?.014:.020,crop?.004:.008);
+  }
+  if(crop)return;
+  for(let i=0;i<9;i++){
+    const x=(i-4)*.019,drift=(part?1:i<3?-1:1)*(part?.051:.025)+.008*Math.sin(i*2.1);
+    const a=V(x*.63,1.744-Math.abs(x)*.22,.037),b=V(x*.92,1.766-Math.abs(x)*.24,.083);
+    let c=V(x+drift*.55,1.704,.119-Math.abs(x)*.25),d=V(x+drift,1.632+Math.abs(x)*.52+.012*Math.sin(i*2.5),.100-Math.abs(x)*.13);
+    if(spike){c=V(x+drift*.5,1.757+.009*Math.sin(i),.098);d=V(x+drift*.8,1.786+.020*Math.sin(i*1.7),.055+.022*Math.cos(i));}
+    if(wave){c=V(x+drift*.7,1.72,.122);d[1]+=.015*Math.sin(i*1.9)}
+    lock('fringe_'+i,curve(a,b,c,d),.022+(i%3)*.003,.009);
   }
   for(const sign of [-1,1]){
-    m.tube('temple_lock','hair',[V(sign*.07,1.717,-.022),V(sign*.105,1.645,.012),V(sign*.094,1.575,.032)],[.023,.024,.002],5);
-    if(long)for(let i=0;i<4;i++)m.tube('side_lock_'+i,'hair',[V(sign*(.065+i*.009),1.70,-.03-i*.008),V(sign*(.095+i*.003),1.60,-.04-i*.01),V(sign*(.095+i*.004),style==='long'?1.29+i*.035:1.48+i*.018,-.045-i*.015)],[.024,.022,.003],6);
+    for(let i=0;i<4;i++){
+      const z=.031-i*.028,endY=long?(style==='long'?1.32+i*.028:1.475+i*.015):1.58+i*.015;
+      lock('temple_lock_'+sign+'_'+i,curve(V(sign*.062,1.727,z),V(sign*.107,1.69,z),V(sign*.117,1.60,z-.005),V(sign*(.094+i*.004),endY,z-.025)),.016,.009);
+    }
+    if(long)for(let i=0;i<5;i++){
+      const x=sign*(.022+i*.016),endY=style==='long'?1.29+i*.026:1.48+i*.013;
+      lock('nape_lock_'+sign+'_'+i,curve(V(x*.6,1.735,-.060),V(x,1.65,-.119),V(x*1.2,1.51,-.124),V(x*1.4,endY,-.105)),.022,.010);
+    }
   }
-  if(style==='topknot')m.loft('knot','hair',[[0,1.73,-.067,.035,.035],[0,1.79,-.075,.049,.042],[0,1.815,-.075,.012,.012]],8);
-  if(style==='braid'||style==='twin-braids')for(const x of style==='braid'?[0]:[-.065,.065])m.tube('braid','hair',Array.from({length:9},(_,i)=>V(x+.008*Math.sin(i*2.4),1.65-i*.043,-.085-.015*Math.sin(i))),Array.from({length:9},(_,i)=>.028-i*.002),7);
-  if(style==='waves')for(let i=0;i<5;i++)m.tube('wave','hair',[V(-.08+i*.04,1.68,-.025),V(-.06+i*.04,1.76,.022),V(-.08+i*.04,1.69,.082)],[.024,.027,.012],6);
+  if(style==='topknot')m.loft('knot','hair',[[0,1.731,-.066,.032,.033],[0,1.773,-.075,.048,.044],[.008,1.796,-.075,.040,.036],[.013,1.817,-.075,.015,.015]],12,.04);
+  if(style==='braid'||style==='twin-braids')for(const x of style==='braid'?[0]:[-.063,.063])for(let strand=0;strand<3;strand++){
+    const points=Array.from({length:32},(_,i)=>{const t=i/31,angle=t*tau*3+strand*tau/3;return V(x+Math.cos(angle)*.014*(1-t*.55),1.565-t*.28,-.116+Math.sin(angle)*.014*(1-t*.55))});
+    m.tube('braid_'+strand,'hair',points,points.map((_,i)=>.010*(1-i/38)),6);
+  }
+  if(style==='locs')for(let i=0;i<9;i++){
+    const phi=PI+i*PI/8,x=Math.cos(phi)*.087,z=Math.sin(phi)*.096;
+    const points=curve(V(x*.7,1.704,z*.7),V(x*1.2,1.61,z*1.2),V(x*1.32,1.49,z*1.25),V(x*1.2,1.43+(i%3)*.027,z*1.2),10);
+    m.tube('loc_'+i,'hair',points,points.map((_,j)=>.014-j*.0008),7);
+  }
 }
 function hood(m,up){
   if(!up){m.loft('folded_hood','primary',[[0,1.32,-.105,.12,.05],[0,1.38,-.117,.145,.08],[0,1.46,-.10,.085,.056]],10,.12);return}
