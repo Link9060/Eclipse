@@ -13,7 +13,7 @@
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.1/examples/jsm/"}}</script>
 </head>
 <body>
-<header><div class="brand"><i></i>ECLIPSE</div><div class="chapter">Prologue / Character creation</div></header>
+<header><div class="brand"><i></i>ECLIPSE</div><div class="chapter">Prologue / Character creation <span id="build-label" data-build="BUILD_LOCAL"></span></div></header>
 <main>
 <section class="stage" aria-label="Character preview">
 <div id="viewport"></div><div id="loading" role="status"><div class="eyebrow">Stage I / Asset pipeline</div><h2 id="asset-title">Preparing character creator</h2><p id="asset-message">Loading the modular renderer…</p><ul id="missing"></ul><div class="selection" id="selection"></div></div>
@@ -29,6 +29,8 @@
 </aside>
 </main>
 <script type="module">
+const release=document.getElementById('build-label');
+release.textContent=' / '+(release.dataset.build==='BUILD_LOCAL'?'local':release.dataset.build.slice(0,7));
 import('./src/creator.js').catch(error=>{
  console.error(error);
  document.getElementById('asset-title').textContent='Creator could not start';
