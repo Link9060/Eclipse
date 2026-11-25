@@ -73,22 +73,39 @@ function head(m,frame,shape){
     const x=s*.039;
     m.quad('eye_socket','shadow',V(x-s*.025,1.612,.098),V(x+s*.026,1.620,.088),V(x+s*.023,1.598,.09),V(x-s*.022,1.598,.098));
     m.quad('eye','eyes',V(x-s*.018,1.605,.100),V(x+s*.020,1.612,.091),V(x+s*.015,1.604,.092),V(x-s*.013,1.601,.100));
-    m.tube('brow','skin',[V(x-s*.022,1.627,.097),V(x+s*.023,1.636,.082)],[.010,.005]);
+    m.tube('brow','shadow',[V(x-s*.022,1.627,.097),V(x+s*.023,1.636,.082)],[.010,.005]);
     m.tube('ear','skin',[V(s*w*.86,1.55,-.013),V(s*(w+.014),1.62,-.012),V(s*w,1.64,-.018)],[.02,.022,.008]);
   }
-  m.ribbon('mouth','shadow',[V(-.025,1.536,.092),V(0,1.533,.099),V(.025,1.536,.092)],.005);
+  m.ribbon('mouth','shadow',[V(-.022,1.536,.093),V(0,1.531,.099),V(.022,1.536,.093)],.005);
 }
 function hair(m,style){
-  // Swept cap and individual tapered locks, with a non-spherical hairline.
-  m.loft('crown','hair',[[0,1.642,-.037,.094,.068],[0,1.694,-.014,.105,.101],[0,1.74,-.013,.087,.084],[.008,1.768,-.018,.026,.035]],12,.035);
+  // A fitted crown with individually shaped, overlapping swept locks.
+  m.loft('crown','hair',[[0,1.65,-.05,.090,.066],[0,1.697,-.015,.104,.092],[0,1.737,-.014,.083,.079],[-.015,1.764,-.018,.032,.032]],14,.065);
   if(style==='cropped')return;
   const long=['long','bob','braid','twin-braids','locs'].includes(style);
   const spikes=style==='spiked';
-  for(let i=0;i<7;i++){
-    const x=(i-3)*.026, sign=x<0?-1:1;
-    const shift=style==='side-part'?.044:.026;
-    m.tube('fringe_'+i,'hair',[V(x*.7,1.735,.04),V(x+shift,1.693,.097),V(x+shift*.8,spikes?1.73:1.615+Math.abs(x)*.28,.114)],[.028,.025,.002],5);
-    if(long)m.tube('side_lock_'+i,'hair',[V(sign*(.065+Math.abs(x)*.3),1.70,-.025),V(sign*.104,1.60,-.028),V(sign*(.09+i*.003),style==='long'?1.30:1.48,-.04)],[.026,.026,.003],6);
+  const strands=[
+    [-.076,-.056,-.086,1.643,.030],[-.064,-.017,-.033,1.607,.034],
+    [-.038,.012,.027,1.622,.039],[-.012,.043,.073,1.654,.034],
+    [.014,.066,.099,1.637,.026],[.039,.081,.101,1.674,.024],
+    [.057,.095,.112,1.682,.019]
+  ];
+  // Wedge-shaped locks have a raised ridge and irregular pointed tips.
+  for(let i=0;i<strands.length;i++){
+    let [root,mid,tip,endY,w]=strands[i];
+    if(style==='side-part'){mid+=.014;tip+=.014}
+    if(spikes){tip*=1.25;endY=1.77+Math.sin(i*2.3)*.035}
+    const a=V(root,1.747-Math.abs(root)*.20,.031),b=V(mid,1.702-i%3*.009,.101+Math.sin(i)*.006),c=V(tip,endY,.105-i*.002);
+    const width=V(w,0,0), ridge=V(0,.009,.014);
+    m.tri('lock_'+i,'hair',sub(a,mul(width,.65)),sub(b,width),add(b,ridge));
+    m.tri('lock_'+i,'hair',sub(a,mul(width,.65)),add(b,ridge),add(a,mul(width,.65)));
+    m.tri('lock_'+i,'hair',add(a,mul(width,.65)),add(b,ridge),add(b,width));
+    m.tri('lock_'+i,'hair',sub(b,width),c,add(b,ridge));
+    m.tri('lock_'+i,'hair',add(b,ridge),c,add(b,width));
+  }
+  for(const sign of [-1,1]){
+    m.tube('temple_lock','hair',[V(sign*.07,1.717,-.022),V(sign*.105,1.645,.012),V(sign*.094,1.575,.032)],[.023,.024,.002],5);
+    if(long)for(let i=0;i<4;i++)m.tube('side_lock_'+i,'hair',[V(sign*(.065+i*.009),1.70,-.03-i*.008),V(sign*(.095+i*.003),1.60,-.04-i*.01),V(sign*(.095+i*.004),style==='long'?1.29+i*.035:1.48+i*.018,-.045-i*.015)],[.024,.022,.003],6);
   }
   if(style==='topknot')m.loft('knot','hair',[[0,1.73,-.067,.035,.035],[0,1.79,-.075,.049,.042],[0,1.815,-.075,.012,.012]],8);
   if(style==='braid'||style==='twin-braids')for(const x of style==='braid'?[0]:[-.065,.065])m.tube('braid','hair',Array.from({length:9},(_,i)=>V(x+.008*Math.sin(i*2.4),1.65-i*.043,-.085-.015*Math.sin(i))),Array.from({length:9},(_,i)=>.028-i*.002),7);
@@ -97,25 +114,28 @@ function hair(m,style){
 function hood(m,up){
   if(!up){m.loft('folded_hood','primary',[[0,1.32,-.105,.12,.05],[0,1.38,-.117,.145,.08],[0,1.46,-.10,.085,.056]],10,.12);return}
   // Open hood lip traced in the image plane; successive rings retreat to a pointed back.
-  const lip=[V(0,1.835,.036),V(.087,1.797,.073),V(.145,1.713,.109),V(.153,1.599,.113),V(.114,1.505,.095),V(0,1.447,.110),V(-.114,1.505,.095),V(-.153,1.599,.113),V(-.145,1.713,.109),V(-.087,1.797,.073)];
+  const lip=[V(-.012,1.849,.052),V(.061,1.821,.072),V(.117,1.763,.101),V(.143,1.688,.119),V(.142,1.586,.121),V(.113,1.497,.103),V(0,1.444,.104),V(-.112,1.497,.103),V(-.147,1.586,.121),V(-.144,1.688,.117),V(-.117,1.766,.098),V(-.073,1.819,.066)];
   const middle=lip.map(([x,y,z],i)=>V(x*1.12,y+.015,-.065-(i%2)*.011));
   const back=lip.map(([x,y])=>V(x*.42,1.63+(y-1.63)*.7,-.145));
   for(let i=0;i<lip.length;i++){
     const k=(i+1)%lip.length;
     // Bottom opening remains open over the neck; mantle covers the join.
-    if(i===4||i===5)continue;
+    if(i===5||i===6)continue;
     m.quad('hood_shell','primary',lip[i],middle[i],middle[k],lip[k]);
     m.quad('hood_shell','primary',middle[i],back[i],back[k],middle[k]);
     m.tri('hood_back','primary',back[i],V(0,1.64,-.17),back[k]);
     const inset=p=>V(p[0]*.91,1.64+(p[1]-1.64)*.93,p[2]-.005);
     m.quad('hood_lining','lining',lip[i],lip[k],inset(lip[k]),inset(lip[i]));
+    const innerMid=p=>V(p[0]*.93,1.64+(p[1]-1.64)*.94,p[2]+.008);
+    m.quad('hood_inside','lining',inset(lip[i]),inset(lip[k]),innerMid(middle[k]),innerMid(middle[i]));
+    m.quad('hood_inside','lining',innerMid(middle[i]),innerMid(middle[k]),innerMid(back[k]),innerMid(back[i]));
   }
-  m.ribbon('pattern_trim_hood','accent',lip.slice(0,5).map(p=>add(p,V(0,0,.003))),.014);
-  m.ribbon('pattern_trim_hood','accent',[lip[0],...lip.slice(6).reverse()].map(p=>add(p,V(0,0,.003))),.014);
+  m.ribbon('pattern_trim_hood','accent',lip.slice(0,6).map(p=>add(p,V(0,0,.003))),.014);
+  m.ribbon('pattern_trim_hood','accent',[lip[0],...lip.slice(7).reverse()].map(p=>add(p,V(0,0,.003))),.014);
   m.diamond('pattern_border_hood','accent',0,1.797,.065,.024,.022);
 }
 function tunic(m,b,style){
-  m.loft('inner_tunic','secondary',[[0,.89,0,b.hip,.12],[0,1.04,0,b.waist,.10],[0,1.19,0,b.waist*1.04,.12],[0,1.35,0,b.shoulder,.115],[0,1.44,0,.08,.058]],12,.05);
+  m.loft('inner_tunic','secondary',[[0,.92,0,b.hip,.12],[0,1.04,0,b.waist,.10],[0,1.19,0,b.waist*1.04,.12],[0,1.35,0,b.shoulder,.115],[0,1.44,0,.08,.058]],12,.05);
   // Diagonal overlapping front pieces, then independently tapered fabric tails.
   m.sheet('crossed_cloth','primary',[[V(-.12,1.41,.09),V(-.045,1.45,.08)],[V(-.10,1.28,.128),V(.015,1.30,.135)],[V(.02,1.14,.129),V(.12,1.17,.10)],[V(.10,1.06,.109),V(.16,1.08,.078)]]);
   for(const s of [-1,1]){
@@ -126,7 +146,8 @@ function tunic(m,b,style){
     m.ribbon('pattern_trim_panel','accent',[add(b1,V(0,0,.005)),add(c,V(0,0,.005)),add(d,V(0,0,.005))],.012);
     if(style==='layered'){
       m.sheet('underpanel','secondary',[[V(s*.12,1.01,.08),V(s*.19,.99,.06)],[V(s*.11,.73,.104),V(s*.24,.73,.055)],[V(s*.07,.54,.12),V(s*.18,.48,.06)]]);
-      m.diamond('pattern_border_panel','accent',s*.095,.68,.151,.022,.043);
+      const t=.40, px=e[0]+(d[0]-e[0])*t,py=e[1]+(d[1]-e[1])*t,pz=e[2]+(d[2]-e[2])*t+.006;
+      m.diamond('pattern_border_panel','accent',px+s*.027,py,pz,.014,.026);
     }
   }
   for(const s of [-1,1]){
@@ -134,25 +155,50 @@ function tunic(m,b,style){
   }
 }
 function mantle(m,b,style){
-  const end=style==='short'?.89:style==='split'?.37:.21;
+  const end=style==='short'?.93:style==='split'?.37:.19;
   const rows=[
-    [V(-.11,1.46,-.035),V(0,1.46,-.063),V(.12,1.46,-.035)],
-    [V(-b.shoulder-.09,1.28,-.05),V(-.045,1.35,-.17),V(b.shoulder+.07,1.28,-.055)],
-    [V(-.34,1.03,-.12),V(-.08,1.05,-.19),V(.27,1.04,-.13)],
-    [V(-.29,.64+(end*.45),-.17),V(-.12,.63+(end*.45),-.23),V(.23,.73+(end*.4),-.17)],
-    [V(-.34,end+.08,-.13),V(-.12,end,-.20),V(.21,end+.2,-.18)]
+    [V(-.105,1.46,-.035),V(-.045,1.47,-.085),V(0,1.47,-.098),V(.06,1.47,-.08),V(.12,1.46,-.035)],
+    [V(-b.shoulder-.09,1.30,-.025),V(-.19,1.33,-.13),V(-.045,1.35,-.18),V(.14,1.33,-.15),V(b.shoulder+.07,1.30,-.035)],
+    [V(-.34,1.07,-.075),V(-.24,1.05,-.16),V(-.08,1.07,-.195),V(.12,1.07,-.19),V(.29,1.08,-.08)],
+    [V(-.35,end+(1.07-end)*.46,-.095),V(-.28,end+(1.07-end)*.47,-.23),V(-.115,end+(1.07-end)*.46,-.21),V(.10,end+(1.07-end)*.48,-.245),V(.29,end+(1.07-end)*.49,-.11)],
+    [V(-.36,end+.16,-.055),V(-.26,end+.05,-.22),V(-.13,end,-.175),V(.05,end+.15,-.24),V(.28,end+.25,-.09)]
   ];
-  if(style==='short')rows.splice(3,1);
+  if(style==='short'){rows.splice(3,1);rows[4-1]=rows[3].map((p,i)=>V(p[0],.94+Math.abs(i-2)*.026,p[2]))}
   m.sheet('cloak_back','primary',rows);
-  // Broad angled shoulder flap with visible folded planes.
-  const p=[V(-.07,1.45,.075),V(-.26,1.36,.075),V(-.33,1.22,.082),V(-.20,1.19,.148),V(.025,1.36,.15)];
-  m.tri('shoulder_mantle','primary',p[0],p[1],p[4]);m.tri('shoulder_mantle','primary',p[1],p[2],p[3]);m.tri('shoulder_mantle','primary',p[1],p[3],p[4]);
-  m.ribbon('pattern_trim_mantle','accent',[p[2],p[3],p[4]].map(v=>add(v,V(0,0,.006))),.016);
-  m.sheet('dark_mantle','secondary',[[V(-.055,1.42,.14),V(.10,1.45,.09),V(.18,1.39,.08)],[V(.025,1.34,.157),V(.17,1.32,.14),V(.28,1.28,.075)],[V(.08,1.29,.15),V(.20,1.24,.13),V(.27,1.19,.075)]]);
-  m.diamond('clasp','metal',0,1.37,.17,.026,.026);
-  m.ribbon('pattern_trim_cloak','accent',rows.map(r=>add(r[0],V(0,0,-.004))),.016);
-  m.ribbon('pattern_trim_cloak','accent',rows.map(r=>add(r[2],V(0,0,-.004))),.016);
-  m.ribbon('pattern_border_cloak','accent',rows.at(-1).map(p=>add(p,V(0,.019,-.004))),.016);
+  // A contrasting inner lining and a visible asymmetric fold wrapping around the left side.
+  const lining=rows.map(row=>row.map(p=>V(p[0]*.986,p[1]+.004,p[2]+.012)));
+  m.sheet('cloak_lining','lining',lining);
+  const side=rows.map((row,j)=>{
+    const p=row[0];return [p,V(p[0]-.013,p[1]+.012,p[2]+.075),V(p[0]+.047,p[1]+(j>1?.055:0),p[2]+.127)];
+  });
+  m.sheet('cloak_side','primary',side);
+  m.ribbon('pattern_trim_cloak','accent',side.map(r=>add(r[2],V(0,0,.003))),.012);
+  m.ribbon('pattern_trim_cloak','accent',rows.map(r=>add(r[4],V(0,0,-.004))),.012);
+  // Mantle: curved overlapping folds crossing the chest and covering both shoulders.
+  const p=[
+    [V(-.068,1.455,.08),V(-.13,1.447,.035),V(-.20,1.42,-.008)],
+    [V(.02,1.372,.157),V(-.15,1.385,.139),V(-.29,1.34,.058)],
+    [V(-.10,1.305,.167),V(-.22,1.28,.14),V(-.33,1.225,.072)],
+    [V(-.18,1.205,.15),V(-.26,1.19,.11),V(-.32,1.19,.06)]
+  ];
+  m.sheet('shoulder_mantle','primary',p);
+  m.ribbon('pattern_trim_mantle','accent',p.map(row=>add(row[0],V(0,0,.005))),.012);
+  m.ribbon('pattern_trim_mantle','accent',p.at(-1).map(v=>add(v,V(0,0,.005))),.012);
+  const folds=[
+    [V(-.047,1.425,.142),V(.10,1.45,.09),V(.19,1.39,.075)],
+    [V(.025,1.365,.171),V(.15,1.36,.151),V(.29,1.29,.078)],
+    [V(.055,1.34,.172),V(.18,1.315,.16),V(.295,1.28,.08)],
+    [V(.075,1.30,.16),V(.19,1.25,.135),V(.28,1.205,.077)]
+  ];
+  m.sheet('dark_mantle','secondary',folds);
+  m.diamond('clasp','metal',0,1.375,.185,.024,.026);
+  m.diamond('clasp_inner','accent',0,1.375,.187,.011,.014);
+  m.ribbon('pattern_border_cloak','accent',rows.at(-1).map(p=>add(p,V(0,.019,-.004))),.014);
+  if(style!=='short'){
+    // Embroidery follows the lower draped side panel.
+    const a=side.at(-1)[2],q=side.at(-2)[2],cy=a[1]+(q[1]-a[1])*.3;
+    m.diamond('pattern_border_cloak','accent',a[0]-.028,cy,a[2]+.008,.019,.035);
+  }
 }
 function trousers(m,b){
   for(const s of [-1,1])m.loft('folded_trousers','secondary',[[s*.105,.29,-.005,.06,.06],[s*.105,.37,-.018,.081,.068],[s*.12,.46,.006,.10,.086],[s*.10,.55,-.008,.095,.084],[s*.105,.66,.004,.11,.095],[s*.10,.80,-.005,.112,.107],[s*.09,.95,0,b.hip*.59,.105]],10,.18);
