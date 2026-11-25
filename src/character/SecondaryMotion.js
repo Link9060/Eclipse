@@ -30,7 +30,7 @@ export class SecondaryMotion {
 export function motionProfile(slot,name,explicit){
   if(['hair','cloak','panel','mantle'].includes(explicit))return explicit;
   name=name.toLowerCase();
-  if(slot==='hair'&&!/crown|knot/.test(name))return 'hair';
+  if(slot==='hair'&&!/crown|knot|scalp_lock/.test(name))return 'hair';
   if(slot==='mantle'&&/cloak/.test(name))return 'cloak';
   if(slot==='mantle'&&/shoulder_mantle|dark_mantle|pattern_trim_mantle/.test(name))return 'mantle';
   if(slot==='tunic'&&/panel/.test(name))return 'panel';
